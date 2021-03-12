@@ -137,9 +137,9 @@ void line_min3_ui8matrix_ilu3(uint8 **X, int i, int j0, int j1, uint8 **Y)
 // -----------------------------------------------------------------------
 {
     //avec scalarisation et rotation
-    uint8 *x1 = X[i-1]; uint8 x11, x12, x13;
-    uint8 *x2 = X[  i]; uint8 x21, x22, x23;
-    uint8 *x3 = X[i+1]; uint8 x31, x32, x33;
+    uint8 *x1 = load1(X,i-1); uint8 x11, x12, x13;
+    uint8 *x2 = load1(X,  i); uint8 x21, x22, x23;
+    uint8 *x3 = load1(X,i+1); uint8 x31, x32, x33;
     uint8 y;
     x12 = load1(x1,j0-1); x13 = load1(x1,j0);
     x22 = load1(x2,j0-1); x23 = load1(x2,j0);
@@ -163,9 +163,9 @@ void line_min3_ui8matrix_ilu3(uint8 **X, int i, int j0, int j1, uint8 **Y)
              x31, x32, x33, y);
         store2(y,i,j+1,Y);
 
-        x11 = x12; x12 = x13; x13 = x1[j+3];
-        x21 = x22; x22 = x23; x23 = x2[j+3];
-        x31 = x32; x32 = x33; x33 = x3[j+3];
+        x11 = x12; x12 = x13; x13 = load1(x1,j+3);
+        x21 = x22; x22 = x23; x23 = load1(x2,j+3);
+        x31 = x32; x32 = x33; x33 = load1(x3,j+3);
         min9(x11, x12, x13,
              x21, x22, x23,
              x31, x32, x33, y);
