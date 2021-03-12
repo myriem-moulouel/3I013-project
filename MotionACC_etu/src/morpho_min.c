@@ -182,17 +182,17 @@ void line_min3_ui8matrix_ilu3(uint8 **X, int i, int j0, int j1, uint8 **Y)
         store2(y,i,j1,Y);
     }else{
         if(r==2){
-            x11 = x12; x12 = x13; x13 = x1[ j1 ];
-            x21 = x22; x22 = x23; x23 = x2[ j1 ];
-            x31 = x32; x32 = x33; x33 = x3[ j1 ];
+            x11 = x12; x12 = x13; x13 = load1(x1, j1 );
+            x21 = x22; x22 = x23; x23 = load1(x2, j1 );
+            x31 = x32; x32 = x33; x33 = load1(x3, j1 );
             min9(x11, x12, x13,
                  x21, x22, x23,
                  x31, x32, x33, y);
             store2(y,i,j1-1,Y);
 
-            x11 = x12; x12 = x13; x13 = x1[j1+1];
-            x21 = x22; x22 = x23; x23 = x2[j1+1];
-            x31 = x32; x32 = x33; x33 = x3[j1+1];
+            x11 = x12; x12 = x13; x13 = load1(x1,j1+1);
+            x21 = x22; x22 = x23; x23 = load1(x2,j1+1);
+            x31 = x32; x32 = x33; x33 = load1(x3,j1+1);
             min9(x11, x12, x13,
                  x21, x22, x23,
                  x31, x32, x33, y);
