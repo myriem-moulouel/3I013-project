@@ -201,7 +201,7 @@ void test_morpho_min_routine(int h, int w0)
     if(w1 > w0) puts("w1 > w0");
     uint8 **X;
     uint8 **Y_bas, **Y_reg, **Y_rot, **Y_red, **Y_ilu3, **Y_ilu3r, **Y_elu2r, **Y_elu2rf, **Y_ilu3_elu2rf;
-     
+        
     int c; // error
 
     //puts("malloc");
@@ -266,7 +266,7 @@ void test_morpho_min_routine(int h, int w0)
     c = compare_ui8matrix(Y_bas, 0, h-1, 0, w0-1, Y_ilu3       , "Y ilu3                      ");
     c = compare_ui8matrix(Y_bas, 0, h-1, 0, w0-1, Y_ilu3r      , "Y ilu3 + red                ");
     c = compare_ui8matrix(Y_bas, 0, h-1, 0, w0-1, Y_elu2r      , "Y elu2 + red                ");
-    c = compare_ui8matrix(Y_bas, 0, h-1, 0, w0-1, Y_elu2rf     , "Y ilu2 + red + factor       ");
+    c = compare_ui8matrix(Y_bas, 0, h-1, 0, w0-1, Y_elu2rf     , "Y ilu3 + red + factor       ");
     c = compare_ui8matrix(Y_bas, 0, h-1, 0, w0-1, Y_ilu3_elu2rf, "Y ilu3 + elu2 + red + factor");
     putchar('\n');/**/
     //puts("done\n");
@@ -849,11 +849,11 @@ int test_morpho(int argc, char* argv[])
 {
     puts("=== test_morpho ===");
     
-    //test_morpho_max();
-    test_morpho_min();
+    test_morpho_max();
+    //test_morpho_min();
     //test_morpho_ouverture();
     
-    bench_morpho_ouverture(128, 512, 8);
+    //bench_morpho_ouverture(128, 512, 8);
     //bench_morpho_ouverture(128, 1024, 8);
     
     //test_set_str();
