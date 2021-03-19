@@ -144,6 +144,7 @@ void line_ouverture3_ui8matrix_fusion_ilu15_red(uint8 **X, int i, int j0, int j1
 void ouverture3_ui8matrix_basic(uint8 **X, int i0, int i1, int j0, int j1, uint8 **Y, uint8 **Z)
 // ---------------------------------------------------------------------------------------------
 {
+    /*
     printf("X\n");
     for(int i=i0; i<=i1; i++) {
         for(int j=j0; j<=j1; j++){
@@ -152,16 +153,19 @@ void ouverture3_ui8matrix_basic(uint8 **X, int i0, int i1, int j0, int j1, uint8
         printf("\n");
     }
     printf("\n");
+    */
     min3_ui8matrix_basic(X, i0-1, i1+1, j0-1, j1+1, Y);
     max3_ui8matrix_basic(Y, i0,   i1,   j0,   j1,   Z);
-    printf("Z\n");
+    
+    /*printf("Z\n");
     for(int i=i0; i<=i1; i++) {
         for(int j=j0; j<=j1; j++){
             printf("%d  ", Z[i][j]);
         }
         printf("\n");
     }
-    printf("\n");
+    printf("\n");*/
+    
 }
 // -----------------------------------------------------------------------------------
 void ouverture3_ui8matrix_fusion(uint8 **X, int i0, int i1, int j0, int j1, uint8 **Y)
@@ -223,38 +227,116 @@ void ouverture3_ui8matrix_pipeline_basic(uint8 **X, int i0, int i1, int j0, int 
     }
 
     for(int i=i0; i<=i1; i++){
-        line_min3_ui8matrix_basic(X,i,j0,j1,T);
+        line_min3_ui8matrix_basic(X,i+1,j0,j1,T);
 
-        line_min3_ui8matrix_basic(T,i,j0,j1,Y);
+        line_max3_ui8matrix_basic(T,i,j0,j1,Y);
     }
 }
 // ----------------------------------------------------------------------------------------------------
 void ouverture3_ui8matrix_pipeline_red(uint8 **X, int i0, int i1, int j0, int j1, uint8 **T, uint8 **Y)
 // ----------------------------------------------------------------------------------------------------
 {
+    for(int i=i0-1; i<=i0; i++){
+        line_min3_ui8matrix_red(X,i,j0,j1,T);
+    }
+
+    for(int i=i0; i<=i1; i++){
+        line_min3_ui8matrix_red(X,i+1,j0,j1,T);
+
+        line_max3_ui8matrix_red(T,i,j0,j1,Y);
+    }
 }
 // ---------------------------------------------------------------------------------------------------------
 void ouverture3_ui8matrix_pipeline_ilu3_red(uint8 **X, int i0, int i1, int j0, int j1, uint8 **T, uint8 **Y)
 // ---------------------------------------------------------------------------------------------------------
 {
+    for(int i=i0-1; i<=i0; i++){
+        line_min3_ui8matrix_ilu3_red(X,i,j0,j1,T);
+    }
+
+    for(int i=i0; i<=i1; i++){
+        line_min3_ui8matrix_ilu3_red(X,i+1,j0,j1,T);
+
+        line_max3_ui8matrix_ilu3_red(T,i,j0,j1,Y);
+    }
 }
 // ---------------------------------------------------------------------------------------------------------
 void ouverture3_ui8matrix_pipeline_elu2_red(uint8 **X, int i0, int i1, int j0, int j1, uint8 **T, uint8 **Y)
 // ---------------------------------------------------------------------------------------------------------
 {
+    for(int i=i0-1; i<=i0; i++){
+        line_min3_ui8matrix_elu2_red(X,i,j0,j1,T);
+    }    
+
+    int r = (i1-i0+1)%2;
+    for(int i=i0; i<i1-r; i+=2){
+        line_min3_ui8matrix_elu2_red(X,i+1,j0,j1,T);
+        line_max3_ui8matrix_elu2_red(T, i ,j0,j1,Y); 
+    }
+
+    if(r==1){
+        line_min3_ui8matrix_ilu3_red(X,i1+1,j0,j1,T);
+
+        line_max3_ui8matrix_ilu3_red(T,i1,j0,j1,Y);
+    }
 }
 // ----------------------------------------------------------------------------------------------------------------
 void ouverture3_ui8matrix_pipeline_elu2_red_factor(uint8 **X, int i0, int i1, int j0, int j1, uint8 **T, uint8 **Y)
 // ----------------------------------------------------------------------------------------------------------------
 {
+    for(int i=i0-1; i<=i0; i++){
+        line_min3_ui8matrix_elu2_red_factor(X,i,j0,j1,T);
+    }    
+
+    int r = (i1-i0+1)%2;
+    for(int i=i0; i<i1-r; i+=2){
+        line_min3_ui8matrix_elu2_red_factor(X,i+1,j0,j1,T);
+        line_max3_ui8matrix_elu2_red_factor(T, i ,j0,j1,Y); 
+    }
+
+    if(r==1){
+        line_min3_ui8matrix_ilu3_red(X,i1+1,j0,j1,T);
+
+        line_max3_ui8matrix_ilu3_red(T,i1,j0,j1,Y);
+    }
 }
 // --------------------------------------------------------------------------------------------------------------
 void ouverture3_ui8matrix_pipeline_ilu3_elu2_red(uint8 **X, int i0, int i1, int j0, int j1, uint8 **T, uint8 **Y)
 // --------------------------------------------------------------------------------------------------------------
 {
+    for(int i=i0-1; i<=i0; i++){
+        line_min3_ui8matrix_ilu3_elu2_red(X,i,j0,j1,T);
+    }    
+
+    int r = (i1-i0+1)%2;
+    for(int i=i0; i<i1-r; i+=2){
+        line_min3_ui8matrix_ilu3_elu2_red(X,i+1,j0,j1,T);
+        line_max3_ui8matrix_ilu3_elu2_red(T, i ,j0,j1,Y); 
+    }
+
+    if(r==1){
+        line_min3_ui8matrix_ilu3_red(X,i1+1,j0,j1,T);
+
+        line_max3_ui8matrix_ilu3_red(T,i1,j0,j1,Y);
+    }
 }
 // ---------------------------------------------------------------------------------------------------------------------
 void ouverture3_ui8matrix_pipeline_ilu3_elu2_red_factor(uint8 **X, int i0, int i1, int j0, int j1, uint8 **T, uint8 **Y)
 // ---------------------------------------------------------------------------------------------------------------------
 {
+    for(int i=i0-1; i<=i0; i++){
+        line_min3_ui8matrix_ilu3_elu2_red_factor(X,i,j0,j1,T);
+    }    
+
+    int r = (i1-i0+1)%2;
+    for(int i=i0; i<i1-r; i+=2){
+        line_min3_ui8matrix_ilu3_elu2_red_factor(X,i+1,j0,j1,T);
+        line_max3_ui8matrix_ilu3_elu2_red_factor(T, i ,j0,j1,Y); 
+    }
+
+    if(r==1){
+        line_min3_ui8matrix_ilu3_red(X,i1+1,j0,j1,T);
+
+        line_max3_ui8matrix_ilu3_red(T,i1,j0,j1,Y);
+    }
 }
