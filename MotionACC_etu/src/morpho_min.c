@@ -283,6 +283,7 @@ void line_min3_ui8matrix_elu2_red(uint8 **X, int i, int j0, int j1, uint8 **Y)
     a2 = load2(X,i+1,j0-1);      b2 = load2(X,i+1, j0 );
     min3( a0, a1, a2, ra1);      min3( b0, b1, b2, rb1);
     // pour i+1
+    //
     a0 = a1;                     b0 = b1;
     a1 = a2;                     b1 = b2;
     a2 = load2(X,i+2,j0-1);      b2 = load2(X,i+2, j0 );
@@ -297,7 +298,7 @@ void line_min3_ui8matrix_elu2_red(uint8 **X, int i, int j0, int j1, uint8 **Y)
         min3( c0, c1, c2, rc1);
         min3(ra1, rb1, rc1, y);
         //operateur ligne
-        store2(Y,i,j,y) ;
+        store2(Y,i+0,j,y) ;
         ra1 = rb1 ;
         rb1 = rc1 ;
         
@@ -324,7 +325,7 @@ void line_min3_ui8matrix_elu2_red_factor(uint8 **X, int i, int j0, int j1, uint8
     uint8 a3, b3, c3;
     uint8 ra0,rb0,rc0;
     uint8 ra1,rb1,rc1;
-    uint8 y;
+    uint8 y1, y2;
 
     b0 = load2(X,i-1,j0-1);     c0 = load2(X,i-1,j0);
     b1 = load2(X,i+0,j0-1);     c1 = load2(X,i+0,j0);
@@ -343,13 +344,12 @@ void line_min3_ui8matrix_elu2_red_factor(uint8 **X, int i, int j0, int j1, uint8
         c3 = load2(X,i+2,j+1);
 		min3( c0, c1, c2, rc0);
         min3( c1, c2, c3, rc1);
-		min3( ra0, rb0, rc0, y );
-        //operateur ligne
-        store2(Y, i ,j,y);
+		min3( ra0, rb0, rc0, y1);
+        min3( ra1, rb1, rc1, y2);
 
-        min3( ra1, rb1, rc1, y );
         //operateur ligne
-        store2(Y,i+1,j,y);
+        store2(Y,i+0,j,y1); 
+        store2(Y,i+1,j,y2);
     }
 }
 // --------------------------------------------------------------------------------
@@ -382,12 +382,12 @@ void line_min3_ui8matrix_ilu3_elu2_red(uint8 **X, int i, int j0, int j1, uint8 *
         
         //reduction de la colonne c
         c0 = load2(X,i-1,j+1);      d0 = load2(X,i-1,j+2);      e0 = load2(X,i-1,j+3);
-        c1 = load2(X, i ,j+1);      d1 = load2(X, i ,j+2);      e1 = load2(X, i ,j+3);
+        c1 = load2(X,i+0,j+1);      d1 = load2(X,i+0,j+2);      e1 = load2(X,i+0,j+3);
         c2 = load2(X,i+1,j+1);      d2 = load2(X,i+1,j+2);      e2 = load2(X,i+1,j+3);
         min3(c0, c1, c2, rc1);      min3(d0, d1, d2, rd1);      min3(e0, e1, e2, re1);
         min3(ra1,rb1,rc1, y0);      min3(rb1,rc1,rd1, y1);      min3(rc1,rd1,re1, y2);
         //operateur ligne
-        store2(Y,i,j,y0) ;          store2(Y,i,j+1,y1) ;           store2(Y,i,j+2,y2) ;
+        store2(Y,i+0,j+0,y0) ;          store2(Y,i,j+1,y1) ;           store2(Y,i,j+2,y2) ;
         ra1 = rd1 ;                 rb1 = re1 ;
         
         //reduction de la colonne c
@@ -397,13 +397,13 @@ void line_min3_ui8matrix_ilu3_elu2_red(uint8 **X, int i, int j0, int j1, uint8 *
         min3(c0, c1, c2, rc2);      min3(d0, d1, d2, rd2);      min3(e0, e1, e2, re2);
         min3(ra2,rb2,rc2, y0);      min3(rb2,rc2,rd2, y1);      min3(rc2,rd2,re2, y2);
         //operateur ligne
-        store2(Y,i+1,j,y0) ;        store2(Y,i+1,j+1,y1) ;      store2(Y,i+1,j+2,y2) ;
+        store2(Y,i+1,j+0,y0) ;        store2(Y,i+1,j+1,y1) ;      store2(Y,i+1,j+2,y2) ;
         ra2 = rd2 ;                 rb2 = re2 ;
     }
     if(r==1){
         //reduction de la colonne c
         c0 = load2(X,i-1,j1+1);
-        c1 = load2(X, i ,j1+1);
+        c1 = load2(X,i+0,j1+1);
         c2 = load2(X,i+1,j1+1);
         min3(c0, c1, c2, rc1);
         min3(ra1,rb1,rc1, y0);
@@ -422,7 +422,7 @@ void line_min3_ui8matrix_ilu3_elu2_red(uint8 **X, int i, int j0, int j1, uint8 *
         if(r==2){
             //reduction de la colonne c
             c0 = load2(X,i-1, j1 );      d0 = load2(X,i-1,j1+1);
-            c1 = load2(X, i , j1 );      d1 = load2(X, i ,j1+1);
+            c1 = load2(X,i+0, j1 );      d1 = load2(X,i+0,j1+1);
             c2 = load2(X,i+1, j1 );      d2 = load2(X,i+1,j1+1);
             min3( c0, c1, c2, rc1);      min3( d0, d1, d2, rd1);
             min3( ra1,rb1,rc1, y0);      min3( rb1,rc1,rd1, y1);

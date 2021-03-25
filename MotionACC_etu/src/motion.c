@@ -82,7 +82,7 @@ void test_PGM(void)
     
     i0 = 0; i1 = h-1; j0 = 0; j1 = w-1;
     
-    src_path = "/Users/lacas/Code/MotionACC/results/";
+    src_path = "results/";
     
     generate_path_filename_k_ndigit_extension(dst_path, "I_", tstart, ndigit, "pgm", complete_filenameI);
     generate_path_filename_k_ndigit_extension(dst_path, "M_", tstart, ndigit, "pgm", complete_filenameM);
@@ -143,10 +143,10 @@ void motion_detection_morpho_v1(void)
     // -------
     // -- init
     // -------
-    puts("[motion_detection_morpho_v1]: les parametres de la sequence sont dans motion.h");
-    puts("[motion_detection_morpho_v1]: supprimer ce message une fois les parametres configures");
-    puts("[motion_detection_morpho_v1]: bye...");
-    return;
+    //puts("[motion_detection_morpho_v1]: les parametres de la sequence sont dans motion.h");
+    //puts("[motion_detection_morpho_v1]: supprimer ce message une fois les parametres configures");
+    //puts("[motion_detection_morpho_v1]: bye...");
+    //return;
     
     src_path = SEQUENCE_SRC_PATH;
     filename = SEQUENCE_FILENAME;
@@ -215,7 +215,7 @@ void motion_detection_morpho_v1(void)
     // -- prologue --
     
     generate_path_filename_k_ndigit_extension(src_path, filename, tstart, ndigit, "pgm", complete_filename_I);
-    //puts(complete_filenameI);
+    puts(complete_filename_I);
         
     MLoadPGM_ui8matrix(complete_filename_I, i0, i1, j0, j1, I);
     

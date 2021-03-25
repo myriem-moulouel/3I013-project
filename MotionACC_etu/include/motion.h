@@ -15,7 +15,7 @@ extern "C" {
 // sequence car3 (ne pas oublier le '/' a la fin)
 
 //#define SEQUENCE_SRC_PATH "../../lsSequences/car3/"
-#define SEQUENCE_SRC_PATH "/Users/lacas/Sequences/car3/"
+#define SEQUENCE_SRC_PATH "../../car3/"
 #define SEQUENCE_FILENAME "car_3"
 #define SEQUENCE_NDIGIT 3
 #define SEQUENCE_HEIGHT 240

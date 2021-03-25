@@ -324,7 +324,7 @@ void line_max3_ui8matrix_elu2_red_factor(uint8 **X, int i, int j0, int j1, uint8
     uint8 a3, b3, c3;
     uint8 ra0,rb0,rc0;
     uint8 ra1,rb1,rc1;
-    uint8 y;
+    uint8 y1,y2;
 
     b0 = load2(X,i-1,j0-1);     c0 = load2(X,i-1,j0);
     b1 = load2(X,i+0,j0-1);     c1 = load2(X,i+0,j0);
@@ -343,13 +343,12 @@ void line_max3_ui8matrix_elu2_red_factor(uint8 **X, int i, int j0, int j1, uint8
         c3 = load2(X,i+2,j+1);
 		max3( c0, c1, c2, rc0);
         max3( c1, c2, c3, rc1);
-		max3( ra0, rb0, rc0, y );
-        //operateur ligne
-        store2(Y, i ,j,y);
+		max3( ra0, rb0, rc0, y1);
+        max3( ra1, rb1, rc1, y2);
 
-        max3( ra1, rb1, rc1, y );
         //operateur ligne
-        store2(Y,i+1,j,y);
+        store2(Y, i ,j,y1);
+        store2(Y,i+1,j,y2);
     }
 }
 // --------------------------------------------------------------------------------

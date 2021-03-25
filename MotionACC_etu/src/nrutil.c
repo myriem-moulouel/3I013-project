@@ -1598,6 +1598,7 @@ void MLoadPGM_ui8matrix(char *filename, int nrl, int nrh, int ncl, int nch, uint
     int i;
 
     buffer = (char*) calloc(80, sizeof(char));
+    
     /* ouverture du fichier */
     file = fopen(filename,"rb");
     if (file==NULL) {
