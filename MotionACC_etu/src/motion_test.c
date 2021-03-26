@@ -9,6 +9,7 @@
 #include <math.h>
 
 #include "motion.h"
+#include "macro.h"
 
 // ====================================
 int test_motion(int argc, char* argv[])

@@ -20,6 +20,7 @@
 #include "nrtype.h"
 #include "nrdef.h"
 #include "nrutil.h"
+#include "macro.h"
 
 #include "macro_bench.h"
 #include "x86intrin.h" // _rdtsc()

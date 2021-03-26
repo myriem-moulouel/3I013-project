@@ -15,6 +15,7 @@
 #include "nrtype.h"
 #include "nrdef.h"
 #include "nrutil.h"
+#include "macro.h"
 
 
 // ------------------------------------------------------------------------
@@ -59,19 +60,25 @@ void line_max3_ui8matrix_rot(uint8 **X, int i, int j0, int j1, uint8 **Y)
     uint8 x31, x32, x33;
     uint8 y;
 
-    x12 = load2(X,i-1,j0-1); x13 = load2(X,i-1,j0);
-    x22 = load2(X, i ,j0-1); x23 = load2(X, i ,j0);
-    x32 = load2(X,i+1,j0-1); x33 = load2(X,i+1,j0);
+    x11 = load2(X,i-1,j0-1); x12 = load2(X,i-1,j0);
+    x21 = load2(X, i ,j0-1); x22 = load2(X, i ,j0);
+    x31 = load2(X,i+1,j0-1); x32 = load2(X,i+1,j0);
 
-	for(int j=j0;j<=j1;j++){
-		x11 = x12; x12 = x13; x13 = load2(X,i-1,j+1);
-        x21 = x22; x22 = x23; x23 = load2(X, i ,j+1);
-        x31 = x32; x32 = x33; x33 = load2(X,i+1,j+1);
+    for(int j=j0; j<=j1; j++){
+        x13 = load2(X,i-1,j+1);
+        x23 = load2(X, i ,j+1);
+        x33 = load2(X,i+1,j+1);
+
         max9(x11, x12, x13,
              x21, x22, x23,
              x31, x32, x33, y);
         store2(Y,i,j,y);
-	}
+        
+        x11 = x12; x12 = x13; 
+        x21 = x22; x22 = x23; 
+        x31 = x32; x32 = x33; 
+        
+    }
 }
 // ----------------------------------------------------------------------
 void line_max3_ui8matrix_red(uint8 **X, int i, int j0, int j1, uint8 **Y)

@@ -17,6 +17,7 @@
 #include "nrtype.h"
 #include "nrdef.h"
 #include "nrutil.h"
+#include "macro.h"
 
 //NR_END est maintenant defini dans nrutil.h
 

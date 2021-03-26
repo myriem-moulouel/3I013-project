@@ -49,5 +49,6 @@ $(EXE_PATH)/$(PRODUCT): $(OBJ)
 clean:
 	rm -f $(OBJ)
 	rm -f $(PRODUCT)
+	rm -f $(EXE_PATH)/$(PRODUCT)
 	#rm -f ${LIB_PATH}/${PRODUCT}
 

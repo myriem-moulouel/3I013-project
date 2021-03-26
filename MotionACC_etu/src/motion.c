@@ -10,6 +10,7 @@
 #include "nrtype.h"
 #include "nrdef.h"
 #include "nrutil.h"
+#include "macro.h"
 
 #include "sigmadelta.h"
 #include "morpho_min.h"
@@ -162,8 +163,6 @@ void test_PGM(void)
         SigmaDelta_1Step(I, M, O, V, E, k, i0, i1, j0, j1);
     
         // morpho en niveau de gris fonctionnant aussi sur des images 1 bit / pixel
-        //min3_ui8matrix_basic(E,           i0, i1, j0, j1, Erosion1);
-        //max3_ui8matrix_basic(Erosion1,    i0, i1, j0, j1, Dilatation1);
         ouverture3_ui8matrix_fusion (E,           i0, i1, j0, j1, Erosion1);
         ouverture3_ui8matrix_fusion (Erosion1,    i0, i1, j0, j1, Dilatation1);
         
@@ -210,7 +209,7 @@ void test_PGM(void)
     free_ui8matrix(M  , i0,   i1,   j0,   j1);
     free_ui8matrix(O  , i0,   i1,   j0,   j1);
     free_ui8matrix(V  , i0,   i1,   j0,   j1);
-    free_ui8matrix(E  , i0-1, i1+1, j0-1, j1+1);
+    free_ui8matrix(E  , i0-b, i1+b, j0-b, j1+b);
     free_ui8matrix(E_8, i0,   i1,   j0,   j1);
     
     free_ui8matrix(Erosion1   , i0-b, i1+b, j0-b, j1+b);

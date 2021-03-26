@@ -16,6 +16,7 @@
 #include "nrtype.h"
 #include "nrdef.h"
 #include "nrutil.h"
+#include "macro.h"
 
 #include "sigmadelta.h"
 
@@ -23,90 +24,90 @@
 void SigmaDelta_Step0_line(uint8 *I, uint8 *M, uint8 *O, uint8 *V, uint8 *E, int j0, int j1)
 // -----------------------------------------------------------------------------------------
 {
-    uint8 mj, ij, oj, vj, ej;
+    uint8 m, i, o, v, e;
     for(int j=j0; j<=j1; j++){
-        mj=load1(M,j);
-        ij=load1(I,j);
-        oj=load1(O,j);
-        vj=load1(V,j);
-        ej=load1(E,j);
+        m=load1(M,j);
+        i=load1(I,j);
+        o=load1(O,j);
+        v=load1(V,j);
+        e=load1(E,j);
 
-        if(mj<ij){
-            mj = mj + 1;
-            oj = ij - mj;
+        if(m<i){
+            m = m + 1;
+            o = i - m;
         }else{
-            if(mj>ij){
-                mj = mj - 1;
-                oj = mj - ij;
+            if(m>i){
+                m = m - 1;
+                o = m - i;
             }else{
-                oj = 0;
+                o = 0;
             }
         }
-        if(vj<oj){
-            vj = vj + 1;
+        if(v<o){
+            v = v + 1;
         }else{
-            if(vj>oj){
-                vj = vj - 1;
+            if(v>o){
+                v = v - 1;
             }
         }
-        uint8 v = min2(vj,SD_VMAX);
+        uint8 v = min2(v,SD_VMAX);
         v = max2(v,SD_VMIN);
-        vj = v;
-        if(oj<vj){
-            ej = 0;
+        v = v;
+        if(o<v){
+            e = 0;
         }else{
-            ej = 1;
+            e = 1;
         }
-        store1(M,j,mj);
-        store1(I,j,ij);
-        store1(O,j,ij);
-        store1(V,j,vj);
-        store1(E,j,ej);
+        store1(M,j,m);
+        store1(I,j,i);
+        store1(O,j,i);
+        store1(V,j,v);
+        store1(E,j,e);
     }
 }
 // ------------------------------------------------------------------------------------------------
 void SigmaDelta_1Step_line(uint8 *I, uint8 *M, uint8 *O, uint8 *V, uint8 *E, int k, int j0, int j1)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8 mj, ij, oj, vj, ej;
+    uint8 m, i, o, v, e;
     for(int j=j0; j<=j1; j++){
-        mj=load1(M,j);
-        ij=load1(I,j);
-        oj=load1(O,j);
-        vj=load1(V,j);
-        ej=load1(E,j);
+        m=load1(M,j);
+        i=load1(I,j);
+        o=load1(O,j);
+        v=load1(V,j);
+        e=load1(E,j);
 
-        if(mj<ij){
-            mj = mj + 1;
-            oj = ij - mj;
+        if(m<i){
+            m = m + 1;
+            o = i - m;
         }else{
-            if(mj>ij){
-                mj = mj - 1;
-                oj = mj - ij;
+            if(m>i){
+                m = m - 1;
+                o = m - i;
             }else{
-                oj = 0;
+                o = 0;
             }
         }
-        if(vj<k*oj){
-            vj = vj + 1;
+        if(v<k*o){
+            v = v + 1;
         }else{
-            if(vj>k*oj){
-                vj = vj - 1;
+            if(v>k*o){
+                v = v - 1;
             }
         }
-        uint8 v = min2(vj,SD_VMAX);
+        uint8 v = min2(v,SD_VMAX);
         v = max2(v,SD_VMIN);
-        vj = v;
-        if(oj<vj){
-            ej = 0;
+        v = v;
+        if(o<v){
+            e = 0;
         }else{
-            ej = 1;
+            e = 1;
         }
-        store1(M,j,mj);
-        store1(I,j,ij);
-        store1(O,j,ij);
-        store1(V,j,vj);
-        store1(E,j,ej);
+        store1(M,j,m);
+        store1(I,j,i);
+        store1(O,j,i);
+        store1(V,j,v);
+        store1(E,j,e);
     }
 }
 // ---------------------------------------------------------------------------------------------------------

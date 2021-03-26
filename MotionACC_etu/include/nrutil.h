@@ -17,66 +17,6 @@
 extern "C" {
 #endif
 
-#define load1(X,i) X[i]
-#define store1(X,i,y) X[i]=y
-
-#define load2(X,i,j) X[i][j]
-
-#define store2(Y,i,j,y) do{ Y[i][j]=y; }while(0)
-
-//==========================================================
-
-#define min2(a,b) (a<b)?a:b
-
-#define min3(a,b,c,d) do{   \
-    if(a<b){                \
-        if(c<a){            \
-            d=c;            \
-        }else{              \
-            d=a;            \
-        }                   \
-    }else{                  \
-        if(c<b){            \
-            d=c;            \
-        }else{              \
-            d=b;            \
-        }                   \
-    }                       \
-}while(0)                   \
-
-#define min9(a,b,c,d,e,f,g,h,i,j) do{               \
-    uint8 m1, m2, m3;                               \
-    min3(a,b,c,m1); min3(d,e,f,m2); min3(g,h,i,m3); \
-    min3(m1,m2,m3,j);                               \
-}while(0)                                           \
-
-//==========================================================
-
-#define max2(a,b) (a>b)?a:b
-
-#define max3(a,b,c,d) do{   \
-    if(a>b){                \
-        if(c>a){            \
-            d=c;            \
-        }else{              \
-            d=a;            \
-        }                   \
-    }else{                  \
-        if(c>b){            \
-            d=c;            \
-        }else{              \
-            d=b;            \
-        }                   \
-    }                       \
-}while(0)                   \
-
-#define max9(a,b,c,d,e,f,g,h,i,j) do{               \
-    uint8 m1, m2, m3;                               \
-    max3(a,b,c,m1); max3(d,e,f,m2); max3(g,h,i,m3); \
-    max3(m1,m2,m3,j);                               \
-}while(0)                                           \
-
-
 #define NR_END 0
 #define FREE_ARG char*
 
