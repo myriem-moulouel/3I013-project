@@ -363,7 +363,7 @@ void motion_detection_morpho_v1(void)
         threshold_ui8matrix(Erosion1,    1, 255, Erosion1_8,    i0, i1, j0, j1);
         threshold_ui8matrix(Erosion2,    1, 255, Erosion2_8,    i0, i1, j0, j1);
         threshold_ui8matrix(Dilatation1, 1, 255, Dilatation1_8, i0, i1, j0, j1);
-        threshold_ui8matrix(Dilatation2, 1, 255, Dilatation1_8, i0, i1, j0, j1);
+        threshold_ui8matrix(Dilatation2, 1, 255, Dilatation2_8, i0, i1, j0, j1);
         
         generate_path_filename_k_ndigit_extension(dst_path, "I_",     t, ndigit, "pgm", complete_filename_I);
         //generate_path_filename_k_ndigit_extension(dst_path, "M_",     t, ndigit, "pgm", complete_filename_M);
