@@ -325,31 +325,37 @@ void line_min3_ui8matrix_elu2_red_factor(uint8 **X, int i, int j0, int j1, uint8
     uint8 a3, b3, c3;
     uint8 ra0,rb0,rc0;
     uint8 ra1,rb1,rc1;
-    uint8 y1, y2;
-
-    b0 = load2(X,i-1,j0-1);     c0 = load2(X,i-1,j0);
-    b1 = load2(X,i+0,j0-1);     c1 = load2(X,i+0,j0);
-    b2 = load2(X,i+1,j0-1);     c2 = load2(X,i+1,j0);
-    b3 = load2(X,i+2,j0-1);     c3 = load2(X,i+2,j0);
-    min3( b0, b1, b2, rb0);     min3( c0, c1, c2, rc0);
-    min3( b1, b2, b3, rb1);     min3( c1, c2, c3, rc1);
-
+    uint8 factor_a,factor_b,factor_c;
+    uint8 y0, y1;
+    //2 * max3 -> 4 comparison max //avec red factor 3*max ---> 3 comparaison// on gagne 1 comparaison par colonne
+    b0       = load2(X,i-1,j0-1);          c0 = load2(X,i-1,j0);
+    b1       = load2(X,i+0,j0-1);          c1 = load2(X,i+0,j0);
+    b2       = load2(X,i+1,j0-1);          c2 = load2(X,i+1,j0);
+    b3       = load2(X,i+2,j0-1);          c3 = load2(X,i+2,j0);
+    //-----------------------------------------------------------
+    factor_b = min2(b1, b2);              factor_c = min2(c1,c2);
+    //----------------------------------------------------------
+    rb0      = min2(b0, factor_b);        rc0 = min2(c0, factor_c);
+    rb1      = min2(b3, factor_b);        rc1 = min2(c3, factor_c);
     for (int j=j0; j<=j1 ; j++) {
         //reduction colonne a //reduction colonne b     //reduction colonne c
-		ra0 = rb0;                  rb0 = rc0;
+        ra0 = rb0;                  rb0 = rc0;
         ra1 = rb1;                  rb1 = rc1;
-        c0 = load2(X,i-1,j+1);
-		c1 = load2(X,i+0,j+1);
-		c2 = load2(X,i+1,j+1);
-        c3 = load2(X,i+2,j+1);
-		min3( c0, c1, c2, rc0);
-        min3( c1, c2, c3, rc1);
-		min3( ra0, rb0, rc0, y1);
-        min3( ra1, rb1, rc1, y2);
-
-        //operateur ligne
-        store2(Y,i+0,j,y1); 
-        store2(Y,i+1,j,y2);
+        c0  = load2(X,i-1,j+1);
+        c1  = load2(X,i+0,j+1);
+        c2  = load2(X,i+1,j+1);
+        c3  = load2(X,i+2,j+1);
+        //---------------------------
+        factor_c = min2(c1,c2);
+        //---------------------------
+        rc0      = min2(c0, factor_c);
+        rc1      = min2(c3, factor_c);
+        //--------------------------
+        min3( ra0, rb0, rc0, y0);
+        min3( ra1, rb1, rc1, y1);
+        //-------------------------
+        store2(Y, i ,j,y0);
+        store2(Y,i+1,j,y1);
     }
 }
 // --------------------------------------------------------------------------------
@@ -444,39 +450,50 @@ void line_min3_ui8matrix_ilu3_elu2_red(uint8 **X, int i, int j0, int j1, uint8 *
 void line_min3_ui8matrix_ilu3_elu2_red_factor(uint8 **X, int i, int j0, int j1, uint8 **Y)
 // ---------------------------------------------------------------------------------------
 {
-    //par colonne !
+	//par colonne !
     uint8 a0, b0, c0, d0, e0;
     uint8 a1, b1, c1, d1, e1;
     uint8 a2, b2, c2, d2, e2;
     uint8 a3, b3, c3, d3, e3;
     uint8 ra1,rb1,rc1,rd1,re1;
     uint8 ra2,rb2,rc2,rd2,re2;
-    uint8 y0, y1, y2;
+    uint8 factor_a,factor_b,factor_c,factor_d,factor_e;
+    uint8 y0, y1, y2, y3, y4, y5;
 
     // pour i
     a0 = load2(X,i-1,j0-1);      b0 = load2(X,i-1, j0 );
     a1 = load2(X, i ,j0-1);      b1 = load2(X, i , j0 );
     a2 = load2(X,i+1,j0-1);      b2 = load2(X,i+1, j0 );
     a3 = load2(X,i+2,j0-1);      b3 = load2(X,i+2, j0 );
-    min3( a0, a1, a2, ra1);      min3( b0, b1, b2, rb1);
-    min3( a1, a2, a3, ra2);      min3( b1, b2, b3, rb2);
-    
+    //-----------------------------------------------
+    factor_a = min2(a1, a2);        factor_b = min2(b1,b2);
+    //-----------------------------------------------
+    ra1 = min2(a0, factor_a);       rb1 = min2(b0, factor_b);
+    ra2 = min2(a3, factor_a);       rb2 = min2(b3, factor_b);
+    //-----------------------------------------------
     int r = (j1-j0+1)%3;
 
     for (int j=j0; j<j1-r ; j+=3) {
-        c0 = load2(X,i-1,j+1);      d0 = load2(X,i-1,j+2);      e0 = load2(X,i-1,j+3);
-        c1 = load2(X, i ,j+1);      d1 = load2(X, i ,j+2);      e1 = load2(X, i ,j+3);
-        c2 = load2(X,i+1,j+1);      d2 = load2(X,i+1,j+2);      e2 = load2(X,i+1,j+3);
-        c3 = load2(X,i+2,j+1);      d3 = load2(X,i+2,j+2);      e3 = load2(X,i+2,j+3);
-        min3(c0, c1, c2, rc1);      min3(d0, d1, d2, rd1);      min3(e0, e1, e2, re1);
-        min3(c1, c2, c3, rc2);      min3(d1, d2, d3, rd2);      min3(e1, e2, e3, re2);
-
-        min3(ra1,rb1,rc1, y0);      min3(rb1,rc1,rd1, y1);      min3(rc1,rd1,re1, y2);
-        store2(Y,i,j,y0) ;          store2(Y,i,j+1,y1) ;        store2(Y,i,j+2,y2) ;
-
-        min3(ra2,rb2,rc2, y0);      min3(rb2,rc2,rd2, y1);      min3(rc2,rd2,re2, y2);
-        store2(Y,i+1,j,y0) ;        store2(Y,i+1,j+1,y1) ;      store2(Y,i+1,j+2,y2) ;
-
+        //Load
+        c0 = load2(X,i-1,j+1);          d0 = load2(X,i-1,j+2);      e0 = load2(X,i-1,j+3);
+        c1 = load2(X, i ,j+1);          d1 = load2(X, i ,j+2);      e1 = load2(X, i ,j+3);
+        c2 = load2(X,i+1,j+1);          d2 = load2(X,i+1,j+2);      e2 = load2(X,i+1,j+3);
+        c3 = load2(X,i+2,j+1);          d3 = load2(X,i+2,j+2);      e3 = load2(X,i+2,j+3);
+        //---------------------------------------------------------------------------
+        factor_c = min2(c1, c2);        factor_d = min2(d1,d2);     factor_e = min2(e1,e2);
+        //---------------------------------------------------------------------------
+        //calc
+        rc1 = min2(c0, factor_c);       rd1 = min2(d0, factor_d);   re1 = min2(e0, factor_e);
+        rc2 = min2(c3, factor_c);       rd2 = min2(d3, factor_d);   re2 = min2(e3, factor_e);
+        //-----------------------------------------------------------------------------------
+        min3(ra1, rb1, rc1, y0);        min3(rb1,rc1,rd1, y2);      min3(rc1,rd1,re1, y4);
+        min3(ra2,rb2,rc2, y1);          min3(rb2,rc2,rd2, y3);      min3(rc2,rd2,re2, y5);
+        //-----------------------------------------------------------------------------------
+        //Store
+        store2(Y,i,j,y0) ;              store2(Y,i,j+1,y2) ;        store2(Y,i,j+2,y4) ;
+        store2(Y,i+1,j,y1) ;            store2(Y,i+1,j+1,y3) ;      store2(Y,i+1,j+2,y5) ;
+        //----------------------------------
+        //RR
         ra1 = rd1 ;                 rb1 = re1 ;
         ra2 = rd2 ;                 rb2 = re2 ;
     }
@@ -485,29 +502,39 @@ void line_min3_ui8matrix_ilu3_elu2_red_factor(uint8 **X, int i, int j0, int j1, 
         c1 = load2(X, i ,j1+1);
         c2 = load2(X,i+1,j1+1);
         c3 = load2(X,i+2,j1+1);
-        min3( c0, c1, c2, rc1);
-        min3( c1, c2, c3, rc2);
-
+        //--------------------
+        factor_c = min2(c1,c2);
+        //--------------------
+        //calc
+        rc1 = min2(c0, factor_c);
+        rc2 = min2(c3, factor_c);
+        //---------------------
         min3(ra1,rb1,rc1, y0);
+        min3(ra2,rb2,rc2, y1);
+        //---------------------
+        //Store
         store2(Y,i,j1,y0) ;
-        
-        
-        min3( ra2,rb2,rc2, y0);
-        store2(Y,i+1,j1,y0) ;
+        store2(Y,i+1,j1,y1) ;
     }else{
         if(r==2){
+            //Load
             c0 = load2(X,i-1, j1 );      d0 = load2(X,i-1,j1+1);
             c1 = load2(X, i , j1 );      d1 = load2(X, i ,j1+1);
             c2 = load2(X,i+1, j1 );      d2 = load2(X,i+1,j1+1);
             c3 = load2(X,i+2, j1 );      d3 = load2(X,i+2,j1+1);
-            min3( c0, c1, c2, rc1);      min3( d0, d1, d2, rd1);
-            min3( c1, c2, c3, rc2);      min3( d1, d2, d3, rd2);
-
-            min3( ra1,rb1,rc1, y0);      min3( rb1,rc1,rd1, y1);
-            store2(Y,i,j1-1,y0) ;          store2(Y,i, j1 ,y1) ;
-            
-            min3( ra2,rb2,rc2, y0);     min3( rb2,rc2,rd2, y1);
-            store2(Y,i+1,j1-1,y0) ;       store2(Y,i+1, j1 ,y1) ;
+            //-----------------------------------------------
+            //Facteur reduction
+            factor_c = min2(c1,c2);      factor_d = min2(d1,d2);
+            //-----------------------------------------------
+            //Calc
+            rc1 = min2(c0, factor_c);      rd1 = min2(d0, factor_d);
+            rc2 = min2(c3, factor_c);      rd2 = min2(d3, factor_d);
+            //-------------------------------------------------
+            min3( ra1,rb1,rc1, y0);        min3( rb1,rc1,rd1, y2);
+            min3( ra2,rb2,rc2, y1);        min3( rb2,rc2,rd2, y3);
+            //------------------------------------------------
+            store2(Y,i,j1-1,y0) ;          store2(Y,i, j1 ,y2);
+            store2(Y,i+1,j1-1,y1) ;        store2(Y,i+1, j1 ,y3);
         }
     }
 }

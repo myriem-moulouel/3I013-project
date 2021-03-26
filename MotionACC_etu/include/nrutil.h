@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 #define load1(X,i) X[i]
+#define store1(X,i,y) X[i]=y
 
 #define load2(X,i,j) X[i][j]
 

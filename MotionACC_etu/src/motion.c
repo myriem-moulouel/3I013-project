@@ -14,6 +14,7 @@
 #include "sigmadelta.h"
 #include "morpho_min.h"
 #include "morpho_max.h"
+#include "morpho_ouverture.h"
 #include "motion.h"
 
 // -------------------------------------------------------
@@ -56,52 +57,167 @@ void threshold_ui8matrix(uint8 **X, uint8 t, uint8 valeur, uint8 **Y, int i0, in
 void test_PGM(void)
 // ----------------
 {
+    // sequence
     char *src_path = SEQUENCE_SRC_PATH;
     char *dst_path = SEQUENCE_DST_PATH;
     char *filename = SEQUENCE_FILENAME;
     int ndigit     = SEQUENCE_NDIGIT;
-    
-    char complete_filenameI[1024];
-    char complete_filenameM[1024];
-    
     int tstart = SEQUENCE_TSTART;
     int tstop  = SEQUENCE_TSTOP;
     int tstep  = SEQUENCE_TSTEP;
-      
-    int h = SEQUENCE_HEIGHT;
-    int w = SEQUENCE_WIDTH;
+
+    // image
+    int h = SEQUENCE_HEIGHT; //height
+    int w = SEQUENCE_WIDTH; //width
+    int b = 2; //border
+    int k = 3; 
     
     int i0, i1, j0, j1;
     long li0, li1, lj0, lj1;
+
+    i0 = 0; i1 = h-1; j0 = 0; j1 = w-1;
+
+    // morpho
+    uint8 **Erosion1, **Dilatation1;
+    uint8 **Erosion1_8, **Dilatation1_8;
     
-    uint8 **I, **M;
+    // sigma-delta
+    uint8 **I, **M, **O, **V, **E, **E_8;
+
+    I   = ui8matrix(i0,   i1,   j0,   j1);
+    M   = ui8matrix(i0,   i1,   j0,   j1);
+    O   = ui8matrix(i0,   i1,   j0,   j1);
+    V   = ui8matrix(i0,   i1,   j0,   j1);
+    E   = ui8matrix(i0-b, i1+b, j0-b, j1+b); // image 1 bit en binaire {0,1}
+    E_8 = ui8matrix(i0,   i1,   j0,   j1); // image 8 bits en, niveau de gris {0,255}
     
+    // image 1bit/pixel
+    Erosion1    = ui8matrix(i0-b, i1+b, j0-b, j1+b);
+    Dilatation1 = ui8matrix(i0-b, i1+b, j0-b, j1+b);
+    
+    // image 8bits pour la visualisation
+    Erosion1_8    = ui8matrix(i0, i1, j0, j1);
+    Dilatation1_8 = ui8matrix(i0, i1, j0, j1);
+
+    // filename for saving data
+    char complete_filename_I[1024];
+    char complete_filename_M[1024];
+    char complete_filename_O[1024];
+    char complete_filename_V[1024];
+    char complete_filename_E[1024];
+    
+    char complete_filename_erosion1[1024];
+    char complete_filename_dilatation1[1024];
+    
+    // --------------------
+    // -- initialisation --
+    // --------------------
+    
+    // bords exterieurs a zero
+    
+    zero_ui8matrix(I  , i0,   i1,   j0,   j1);
+    zero_ui8matrix(M  , i0,   i1,   j0,   j1);
+    zero_ui8matrix(O  , i0,   i1,   j0,   j1);
+    zero_ui8matrix(V  , i0,   i1,   j0,   j1);
+    zero_ui8matrix(E  , i0-b, i1+b, j0-b, j1+b); // image 1 bit en binaire {0,1}
+    zero_ui8matrix(E_8, i0,   i1,   j0,   j1); // image 8 bits en, niveau de gris {0,255}
+    
+    zero_ui8matrix(Erosion1   , i0-b, i1+b, j0-b, j1+b);
+    zero_ui8matrix(Dilatation1, i0-b, i1+b, j0-b, j1+b);
+    
+    zero_ui8matrix(Erosion1_8   , i0, i1, j0, j1);
+    zero_ui8matrix(Dilatation1_8, i0, i1, j0, j1);
+    
+    // ----------------
+    // -- traitement --
+    // ----------------
+    
+    // -- prologue --
+
     puts("--------------");
     puts("-- test_PGM --");
     puts("--------------");
     
-    i0 = 0; i1 = h-1; j0 = 0; j1 = w-1;
+    generate_path_filename_k_ndigit_extension(src_path, filename, tstart, ndigit, "pgm", complete_filename_I);
+    puts(complete_filename_I);
     
-    src_path = "results/";
+    MLoadPGM_ui8matrix(complete_filename_I, i0, i1, j0, j1, I);
+
+    // fragment de code pour verifier qu'on lit bien les bonnes images
+    //SavePGM_ui8matrix(I, i0, i1, j0, j1, "verif.pgm");
+    //reverse_video(I, i0+h/4, i1-h/4, j0+w/8, j1-w/8);
+    //SavePGM_ui8matrix(I, i0, i1, j0, j1, complete_filename_M);
     
-    generate_path_filename_k_ndigit_extension(dst_path, "I_", tstart, ndigit, "pgm", complete_filenameI);
-    generate_path_filename_k_ndigit_extension(dst_path, "M_", tstart, ndigit, "pgm", complete_filenameM);
+    SigmaDelta_Step0(I, M, O, V, E, i0, i1, j0, j1);
+
+    // -- boucle --
+    for(int t=tstart; t<=tstop; t+=tstep) {
+        
+        printf("-- i = %3d ----------\n", t);
+        
+        generate_path_filename_k_ndigit_extension(src_path, filename, t, ndigit, "pgm", complete_filename_I);
+        MLoadPGM_ui8matrix(complete_filename_I, i0, i1, j0, j1, I);
+
+        // N = 3 ecart type autour de la moyenne
+        SigmaDelta_1Step(I, M, O, V, E, k, i0, i1, j0, j1);
     
-    puts(complete_filenameI);
-    puts(complete_filenameM);
+        // morpho en niveau de gris fonctionnant aussi sur des images 1 bit / pixel
+        //min3_ui8matrix_basic(E,           i0, i1, j0, j1, Erosion1);
+        //max3_ui8matrix_basic(Erosion1,    i0, i1, j0, j1, Dilatation1);
+        ouverture3_ui8matrix_fusion (E,           i0, i1, j0, j1, Erosion1);
+        ouverture3_ui8matrix_fusion (Erosion1,    i0, i1, j0, j1, Dilatation1);
+        
+        // traitement pour visualisation
+        threshold_ui8matrix(E,           1, 255, E_8,           i0, i1, j0, j1);
+        threshold_ui8matrix(Erosion1,    1, 255, Erosion1_8,    i0, i1, j0, j1);
+        threshold_ui8matrix(Dilatation1, 1, 255, Dilatation1_8, i0, i1, j0, j1);
+        
+        generate_path_filename_k_ndigit_extension(dst_path, "I_",     t, ndigit, "pgm", complete_filename_I);
+        //generate_path_filename_k_ndigit_extension(dst_path, "M_",     t, ndigit, "pgm", complete_filename_M);
+        //generate_path_filename_k_ndigit_extension(dst_path, "O_",     t, ndigit, "pgm", complete_filename_O);
+        //generate_path_filename_k_ndigit_extension(dst_path, "V_",     t, ndigit, "pgm", complete_filename_V);
+        generate_path_filename_k_ndigit_extension(dst_path, "E_",     t, ndigit, "pgm", complete_filename_E);
+     
+        generate_path_filename_k_ndigit_extension(dst_path, "Ero1_",     t, ndigit, "pgm", complete_filename_erosion1);
+        generate_path_filename_k_ndigit_extension(dst_path, "Dil1_",     t, ndigit, "pgm", complete_filename_dilatation1);
+        
+        //puts(complete_filename_I);
+        //puts(complete_filename_M);
+        //puts(complete_filename_O);
+        //puts(complete_filename_V);
+        puts(complete_filename_E);
+        
+        puts(complete_filename_erosion1);
+        puts(complete_filename_dilatation1);
+        //puts(complete_filename_dilatation2);
+        //puts(complete_filename_erosion2);
+        
+        //SavePGM_ui8matrix(I, i0, i1, j0, j1, complete_filename_I);
+        //SavePGM_ui8matrix(M, i0, i1, j0, j1, complete_filename_M);
+        //SavePGM_ui8matrix(O, i0, i1, j0, j1, complete_filename_O);
+        //SavePGM_ui8matrix(V, i0, i1, j0, j1, complete_filename_V);
+        //SavePGM_ui8matrix(E, i0, i1, j0, j1, complete_filename_E);
+        
+        SavePGM_ui8matrix(Erosion1_8   , i0, i1, j0, j1, complete_filename_erosion1   );
+        SavePGM_ui8matrix(Dilatation1_8, i0, i1, j0, j1, complete_filename_dilatation1);
+    } // t
     
-    I  = ui8matrix(0, h-1, 0, w-1);
-    M  = ui8matrix(0, h-1, 0, w-1);
+    // ----------
+    // -- free --
+    // ----------
     
-    init_image(I, 0, h-1, 0, w-1);
+    free_ui8matrix(I  , i0,   i1,   j0,   j1);
+    free_ui8matrix(M  , i0,   i1,   j0,   j1);
+    free_ui8matrix(O  , i0,   i1,   j0,   j1);
+    free_ui8matrix(V  , i0,   i1,   j0,   j1);
+    free_ui8matrix(E  , i0-1, i1+1, j0-1, j1+1);
+    free_ui8matrix(E_8, i0,   i1,   j0,   j1);
     
-    SavePGM_ui8matrix(I, i0, i1, j0, j1, complete_filenameI);
-    MLoadPGM_ui8matrix(complete_filenameI, i0, i1, j0, j1, M);
-    reverse_video(M, i0+h/4, i1-h/4, j0+w/8, j1-w/8);
-    SavePGM_ui8matrix(M, i0, i1, j0, j1, complete_filenameM);
+    free_ui8matrix(Erosion1   , i0-b, i1+b, j0-b, j1+b);
+    free_ui8matrix(Dilatation1, i0-b, i1+b, j0-b, j1+b);
     
-    free_ui8matrix(I, 0, h-1, 0, w-1);
-    free_ui8matrix(M, 0, h-1, 0, w-1);
+    free_ui8matrix(Erosion1_8   , i0, i1, j0, j1);
+    free_ui8matrix(Dilatation1_8, i0, i1, j0, j1);
 }
 // ==================================
 void motion_detection_morpho_v1(void)
@@ -309,6 +425,6 @@ void motion_detection_morpho_v1(void)
 void motion_detection_morpho(void)
 // ===============================
 {
-    motion_detection_morpho_v1(); // version basique sans optimisation
-    //test_PGM();
+    //motion_detection_morpho_v1(); // version basique sans optimisation
+    test_PGM();
 }

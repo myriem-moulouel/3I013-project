@@ -26,50 +26,41 @@
 void line_ouverture3_ui8matrix_fusion(uint8 **X, int i, int j0, int j1, uint8 **Y)
 // -------------------------------------------------------------------------------
 {
-    uint8 x00, x01, x02;
-    uint8 x10, x11, x12;
-    uint8 x20, x21, x22;
+    uint8 x00, x01, x02, x03, x04;
+    uint8 x10, x11, x12, x13, x14;
+    uint8 x20, x21, x22, x23, x24;
+    uint8 x30, x31, x32, x33, x34;
+    uint8 x40, x41, x42, x43, x44;
 
     uint8 min00, min01, min02;
     uint8 min10, min11, min12;
     uint8 min20, min21, min22;
 
-    for(int j=j0; j<=j1; j++){
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min00);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min01);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min02);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min10);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min11);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min12);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min20);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min00);
-        min9(x00,x01,x02,
-             x10,x11,x12,
-             x20,x21,x22,min00);
-    }
-    /*
-    line_min3_ui8matrix_rot(X,i-1,j0-1,j1+1,Z);
-    line_min3_ui8matrix_rot(X,i  ,j0-1,j1+1,Z);
-    line_min3_ui8matrix_rot(X,i+1,j0-1,j1+1,Z);
+    uint8 y;
 
-    line_max3_ui8matrix_rot(Z,i,j0,j1,Y);
-    */
+    for(int j=j0; j<=j1; j++){
+        x00=load2(X,i-2,j-2); x01=load2(X,i-2,j-1); x02=load2(X,i-2, j ); x03=load2(X,i-2,j+1); x04=load2(X,i-2,j+2);
+        x10=load2(X,i-1,j-2); x11=load2(X,i-1,j-1); x12=load2(X,i-1, j ); x13=load2(X,i-1,j+1); x14=load2(X,i-1,j+2);
+        x20=load2(X, i ,j-2); x21=load2(X, i ,j-1); x22=load2(X, i , j ); x23=load2(X, i ,j+1); x24=load2(X, i ,j+2);
+        x30=load2(X,i+1,j-2); x31=load2(X,i+1,j-1); x32=load2(X,i+1, j ); x33=load2(X,i+1,j+1); x34=load2(X,i+1,j+2);
+        x40=load2(X,i+2,j-2); x41=load2(X,i+2,j-1); x42=load2(X,i+2, j ); x43=load2(X,i+2,j+1); x44=load2(X,i+2,j+2);
+
+        min9(x00,x01,x02,x10,x11,x12,x20,x21,x22,min00);
+        min9(x01,x02,x03,x11,x12,x13,x21,x22,x23,min01);
+        min9(x02,x03,x04,x12,x13,x14,x22,x23,x24,min02);
+
+        min9(x10,x11,x12,x20,x21,x22,x30,x31,x32,min10);
+        min9(x11,x12,x13,x21,x22,x23,x31,x32,x33,min11);
+        min9(x12,x13,x14,x22,x23,x24,x32,x33,x34,min12);
+
+        min9(x20,x21,x22,x30,x31,x32,x40,x41,x42,min20);
+        min9(x21,x22,x23,x31,x32,x33,x41,x42,x43,min21);
+        min9(x22,x23,x24,x32,x33,x34,x42,x43,x44,min22);
+
+        max9(min00, min01, min02, min10, min11, min12, min20, min21, min22, y);
+        
+        store2(Y,i,j,y);
+    }
 }
 // ----------------------------------------------------------------------------------------
 void line_ouverture3_ui8matrix_fusion_ilu5_red(uint8 **X, int i, int j0, int j1, uint8 **Y)
@@ -207,11 +198,11 @@ void ouverture3_ui8matrix_basic(uint8 **X, int i0, int i1, int j0, int j1, uint8
 // -----------------------------------------------------------------------------------
 void ouverture3_ui8matrix_fusion(uint8 **X, int i0, int i1, int j0, int j1, uint8 **Y)
 // -----------------------------------------------------------------------------------
-{/*
+{
     for(int i=i0; i<=i1; i++){
-        line_ouverture3_ui8matrix_fusion(X,i,j0,j1,Z,Y);
+        line_ouverture3_ui8matrix_fusion(X,i,j0,j1,Y);
     }
-    */
+    
 }
 // --------------------------------------------------------------------------------------------
 void ouverture3_ui8matrix_fusion_ilu5_red(uint8 **X, int i0, int i1, int j0, int j1, uint8 **Y)

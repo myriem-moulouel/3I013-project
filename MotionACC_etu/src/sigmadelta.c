@@ -23,66 +23,90 @@
 void SigmaDelta_Step0_line(uint8 *I, uint8 *M, uint8 *O, uint8 *V, uint8 *E, int j0, int j1)
 // -----------------------------------------------------------------------------------------
 {
-    for(int j=j0; j<=j0; j++){
-        if(M[j]<I[j]){
-            M[j] = M[j] + 1;
-            O[j] = I[j] - M[j];
+    uint8 mj, ij, oj, vj, ej;
+    for(int j=j0; j<=j1; j++){
+        mj=load1(M,j);
+        ij=load1(I,j);
+        oj=load1(O,j);
+        vj=load1(V,j);
+        ej=load1(E,j);
+
+        if(mj<ij){
+            mj = mj + 1;
+            oj = ij - mj;
         }else{
-            if(M[j]>I[j]){
-                M[j] = M[j] - 1;
-                O[j] = M[j] - I[j];
+            if(mj>ij){
+                mj = mj - 1;
+                oj = mj - ij;
             }else{
-                O[j] = 0;
+                oj = 0;
             }
         }
-        if(V[j]<O[j]){
-            V[j] = V[j] + 1;
+        if(vj<oj){
+            vj = vj + 1;
         }else{
-            if(V[j]>O[j]){
-                V[j] = V[j] - 1;
+            if(vj>oj){
+                vj = vj - 1;
             }
         }
-        uint8 v = min2(V[j],SD_VMAX);
-        v = min2(v,SD_VMIN);
-        V[j] = v;
-        if(O[j]<V[j]){
-            E[j] = 0;
+        uint8 v = min2(vj,SD_VMAX);
+        v = max2(v,SD_VMIN);
+        vj = v;
+        if(oj<vj){
+            ej = 0;
         }else{
-            E[j] = 1;
+            ej = 1;
         }
+        store1(M,j,mj);
+        store1(I,j,ij);
+        store1(O,j,ij);
+        store1(V,j,vj);
+        store1(E,j,ej);
     }
 }
 // ------------------------------------------------------------------------------------------------
 void SigmaDelta_1Step_line(uint8 *I, uint8 *M, uint8 *O, uint8 *V, uint8 *E, int k, int j0, int j1)
 // ------------------------------------------------------------------------------------------------
 {
-    for(int j=j0; j<=j0; j++){
-        if(M[j]<I[j]){
-            M[j] = M[j] + 1;
-            O[j] = I[j] - M[j];
+    uint8 mj, ij, oj, vj, ej;
+    for(int j=j0; j<=j1; j++){
+        mj=load1(M,j);
+        ij=load1(I,j);
+        oj=load1(O,j);
+        vj=load1(V,j);
+        ej=load1(E,j);
+
+        if(mj<ij){
+            mj = mj + 1;
+            oj = ij - mj;
         }else{
-            if(M[j]>I[j]){
-                M[j] = M[j] - 1;
-                O[j] = M[j] - I[j];
+            if(mj>ij){
+                mj = mj - 1;
+                oj = mj - ij;
             }else{
-                O[j] = 0;
+                oj = 0;
             }
         }
-        if(V[j]<k*O[j]){
-            V[j] = V[j] + 1;
+        if(vj<k*oj){
+            vj = vj + 1;
         }else{
-            if(V[j]>k*O[j]){
-                V[j] = V[j] - 1;
+            if(vj>k*oj){
+                vj = vj - 1;
             }
         }
-        uint8 v = min2(V[j],SD_VMAX);
-        v = min2(v,SD_VMIN);
-        V[j] = v;
-        if(O[j]<V[j]){
-            E[j] = 0;
+        uint8 v = min2(vj,SD_VMAX);
+        v = max2(v,SD_VMIN);
+        vj = v;
+        if(oj<vj){
+            ej = 0;
         }else{
-            E[j] = 1;
+            ej = 1;
         }
+        store1(M,j,mj);
+        store1(I,j,ij);
+        store1(O,j,ij);
+        store1(V,j,vj);
+        store1(E,j,ej);
     }
 }
 // ---------------------------------------------------------------------------------------------------------

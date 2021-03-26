@@ -1633,14 +1633,17 @@ void SavePGM_ui8matrix(uint8 **m, long nrl, long nrh, long ncl, long nch, char *
   long ncol = nch-ncl+1;
 
   char buffer[80];
+  char msg[1024];
 
   FILE *file;
   int  i;
 
   file = fopen(filename, "wb");
-  if (file == NULL)
-    //nrerror("ouverture du fichier %s impossible dans SavePGM_bmatrix\n", filename);
-    nrerror("ouverture du fichier %s impossible dans SavePGM_ui8matrix\n");
+  if (file == NULL){
+    sprintf(msg,"ouverture du fichier %s impossible dans SavePGM_bmatrix\n", filename);
+    nrerror(msg);
+    //nrerror("ouverture du fichier %s impossible dans SavePGM_ui8matrix\n");
+  }
 
   /* enregistrement de l'image au format rpgm */
 
